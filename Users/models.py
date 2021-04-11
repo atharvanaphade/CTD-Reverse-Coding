@@ -27,6 +27,9 @@ class Question(models.Model):
 
 
 class Submission(models.Model):
+
+    languages = [("cpp", "C++"), ("c", "C"), ("py", "Python")]
+
     user_id_fk = models.ForeignKey(User, on_delete=models.CASCADE)
     question_id_fk = models.ForeignKey(Question, on_delete=models.CASCADE)
     score = models.FloatField(default=0)
@@ -34,6 +37,8 @@ class Submission(models.Model):
     attempt = models.IntegerField(default=0)
     status = models.CharField(default='NA', max_length=5)
     accuracy = models.FloatField(default=0)
+    code = models.TextField(default="")
+    language = models.CharField(choices=languages)
 
     def __str__(self):
         return("submission_" + str(self.pk) + "_" + self.user_id_fk.username + "_question_" + str(self.question_id_fk))
@@ -51,8 +56,8 @@ class TestCase(models.Model):
 
     input = models.JSONField()
     output = models.JSONField()
-    time_limit = models.JSONField()
-    memory_limit = models.JSONField()
+    time_limit = models.IntegerField()
+    memory_limit = models.IntegerField()
 
     def __str__(self):
         return("test_case_" + str(self.pk) + "_question_" + self.question_id)
