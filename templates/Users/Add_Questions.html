@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8">
+    <title> Add Questions </title>
+</head>
+
+<body>
+<form method = "post">
+    {% csrf_token %}
+
+    <h1> Add Questions </h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <b> {{ message }}</b>
+            <br>
+        {% endfor %}
+    {% endif %}
+
+    <div>
+        <label for="ques_tit">Enter Question Title</label>
+        <input type="text", id = "ques_tit", name = "ques_tit">
+    </div>
+
+    <br>
+
+    <div>
+        <label for="ques_desc">Enter Question Description</label>
+        <input type="text", id = "ques_desc", name = "ques_desc">
+    </div>
+
+    <br>
+
+    <div>
+        <button type="submit">Add Question</button>
+    </div>
+
+</form>
+
+<br>
+
+</body>
+</html>
+
+
+
+
