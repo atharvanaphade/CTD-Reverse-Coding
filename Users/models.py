@@ -17,7 +17,7 @@ class Profile(models.Model):
 
 class Question(models.Model):
     question_title = models.CharField(max_length=255)
-    question_desc = models.TextField("")
+    question_desc = models.TextField(default="")
     correct_attempts = models.IntegerField(default=0)
     total_attempts = models.IntegerField(default=0)
     max_marks = models.FloatField(default=0)
