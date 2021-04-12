@@ -1,9 +1,10 @@
-from .models import Question, TestCase
-from .serializers import QuestionSerializer, TestCaseSerializer
+from .models import Profile, Question, TestCase
+from .serializers import QuestionSerializer, TestCaseSerializer, AccountSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import mixins
 from rest_framework import generics
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -76,3 +77,11 @@ class TestCaseDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
+
+class AccountList(generics.ListCreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = AccountSerializer
+
+class AccountDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = AccountSerializer
