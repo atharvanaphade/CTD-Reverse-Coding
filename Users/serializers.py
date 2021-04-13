@@ -28,6 +28,6 @@ class AccountSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         profile_data = validated_data.pop('profile')
-        user_instance = User.objects.create(**validated_data)
+        user_instance = User.objects.create_user(**validated_data)
         Profile.objects.create(user=user_instance, **profile_data)
         return user_instance
