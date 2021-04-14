@@ -45,6 +45,10 @@ class AccountSerializer(serializers.ModelSerializer):
             entrypointfile = open("entrypointfile.sh", "w+")
             entrypointfile.write(imports.EntryPointScript[i])
             entrypointfile.close()
+            input_file = open("input", "w+")
+            input_file.close()
+            output_file = open("output", "w+")
+            output_file.close()
             os.chdir(imports.cur_dir)
         return user_instance
 

@@ -2,13 +2,13 @@ import os
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 user_codes_dir = cur_dir + "../SandboxData/Users/{}/{}/{}"
-print(user_codes_dir)
+seccomp_profile_dir = cur_dir + "../SandboxData/Users"
 
 Dockerfile = [
-    "FROM openjdk:11.0.6-jdk-slim\n" + "WORKDIR /app\n" + "USER root\n" + "ADD . .\n" + "RUN chmod a+x ./main.java\n" + "RUN chmod a+x ./entrypoint.sh\n" + "ENTRYPOINT ['./entrypoint.sh']\n",
-    "FROM python:3.7\n" + "WORKDIR /app\n" + "USER root\n" + "ADD . .\n" + "RUN chmod a+x ./main.py\n" + "RUN chmod a+x ./entrypoint.sh\n" + "ENTRYPOINT ['./entrypoint.sh']",
-    "FROM gcc\n" + "WORKDIR /app\n" + "USER root\n" + "ADD . .\n" + "RUN chmod a+x ./main.c\n" + "RUN chmod a+x ./entrypoint.sh\n" + "ENTRYPOINT ['./entrypoint.sh']\n",
-    "FROM gcc\n" + "WORKDIR /app\n" + "USER root\n" + "ADD . .\n" + "RUN chmod a+x ./main.cpp\n" + "RUN chmod a+x ./entrypoint.sh\n" + "ENTRYPOINT ['./entrypoint.sh']\n"
+    "FROM openjdk:11.0.6-jdk-slim\n" + "WORKDIR /app\n" + "USER root\n" + "ADD . .\n" + "RUN chmod a+x ./main.java\n" + "RUN chmod a+x ./entrypoint.sh\n" + "ENTRYPOINT ./entrypoint.sh\n",
+    "FROM python:3.7\n" + "WORKDIR /app\n" + "USER root\n" + "ADD . .\n" + "RUN chmod a+x ./main.py\n" + "RUN chmod a+x ./entrypoint.sh\n" + "ENTRYPOINT ./entrypoint.sh\n",
+    "FROM gcc\n" + "WORKDIR /app\n" + "USER root\n" + "ADD . .\n" + "RUN chmod a+x ./main.c\n" + "RUN chmod a+x ./entrypoint.sh\n" + "ENTRYPOINT ./entrypoint.sh\n",
+    "FROM gcc\n" + "WORKDIR /app\n" + "USER root\n" + "ADD . .\n" + "RUN chmod a+x ./main.cpp\n" + "RUN chmod a+x ./entrypoint.sh\n" + "ENTRYPOINT ./entrypoint.sh\n"
 ]
 
 EntryPointScript = [
