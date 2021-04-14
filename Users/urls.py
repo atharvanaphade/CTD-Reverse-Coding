@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from rest_framework.urlpatterns import format_suffix_patterns
 from Users import views
 from rest_framework_simplejwt import views as jwt_views
@@ -13,8 +13,11 @@ urlpatterns = [
     path('profiles/<int:pk>', views.AccountDetail.as_view()),
     path('timer/', views.Timer.as_view()),
     path('leaderboard/', views.LeaderBoardListView.as_view()),
+    path('submissions/', views.SubmissionListView.as_view()),
+    path('submissions/<int:pk>', views.SubmissionDetailView.as_view()),
     path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
+    path('api-auth/', include('rest_framework.urls')),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

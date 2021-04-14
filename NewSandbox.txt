@@ -1,0 +1,30 @@
+Folder Tree :-
+    Main Project Directory
+    |
+    |----> Sandbox Data Directory
+            |----> Seccomp Profile JSON
+            |----> Users Directory
+                    |
+                    |----> Folder for each User
+                            |
+                            |----> java
+                            |       |       
+                            |       |----> entrypoint.sh
+                            |       |----> dockerfile
+                            |       |----> Codes of Users by Submission Time and Status
+                            |       |----> input file, and output/error file
+                            |
+                            |----> python
+                            |----> c
+                            |----> cpp
+
+Functioning :-
+    1) User submits code through the api.
+    2) code is saved in db by submission time
+    3) parellely the code is run by the docker container with time and memory limits and the seccomp profile, and updates the code file name by its status after running
+    4) For now java, python, c, cpp have been tested. More languages can be added later on it the project works correctly
+
+Problems :-
+    1) Building the container image is taking too much time, have to find something like ActiveMQ for storing the image's state to be used later on.
+    2) Checking for constructive Algorithm Problems has not been solved
+    3) 

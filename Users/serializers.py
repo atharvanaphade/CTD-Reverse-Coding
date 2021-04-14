@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import fields
 from rest_framework import serializers
-from .models import Question, TestCase, Profile
+from .models import Question, Submission, TestCase, Profile
 from django.contrib.auth.models import User
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -22,6 +22,7 @@ class AccountSerializer(serializers.ModelSerializer):
             exclude = ['user']
     
     profile = ProfileSerializer()
+
     class Meta:
         model = User
         exclude = ['last_login', 'is_superuser', 'is_staff', 'date_joined', 'is_active', 'groups', 'user_permissions']
@@ -31,3 +32,8 @@ class AccountSerializer(serializers.ModelSerializer):
         user_instance = User.objects.create_user(**validated_data)
         Profile.objects.create(user=user_instance, **profile_data)
         return user_instance
+
+class SubmissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Submission
+        fields = ('__all__')

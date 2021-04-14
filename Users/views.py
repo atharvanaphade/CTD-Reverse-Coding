@@ -1,6 +1,7 @@
 # Imports
+from django.db.models.query import QuerySet
 from .models import Profile, Question, TestCase, Submission
-from .serializers import QuestionSerializer, TestCaseSerializer, AccountSerializer
+from .serializers import QuestionSerializer, TestCaseSerializer, AccountSerializer, SubmissionSerializer
 from rest_framework.response import Response
 from rest_framework import serializers, status
 from rest_framework import mixins
@@ -138,34 +139,41 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 3
 
 class LeaderBoardListView(generics.ListAPIView):
-    # queryset = User.objects.order_by('-profile__total_score')
-    # serializer_class = AccountSerializer
-    # pagination_class = StandardResultsSetPagination
+    queryset = User.objects.order_by('-profile__total_score')
+    serializer_class = AccountSerializer
+    pagination_class = StandardResultsSetPagination
 
-    def get(self, request, format=None):
-        questions = Question.objects.all()
-        current_user = request.user.username
-        current_score = request.user.profile.total_score
-        leaderboard = {}
-        for profile in Profile.objects.order_by('-total_score'):
-            question_scores = [0 for i in questions]
-            user_submissions = Submission.objects.filter(user_id_fk=profile.user.id)
-            if user_submissions:
-                for question in questions:
-                    question_submission = user_submissions.filter(pk=question.id)
-                    if question_submission:
-                        question_score = question_submission.order_by('-score').first()
-                        question_scores[question.id - 1] += question_score.score
-            question_scores.append(profile.total_score)
-            leaderboard[profile.user.username] = question_scores
-        rank = int(list(leaderboard.keys()).index(current_user))
-        paginator = Paginator(tuple(leaderboard.items()), 10)  # Show 10 users per page.
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-        page_range = paginator.page_range
-        user_accuracy = round(((request.user.profile.correct_answers / len(questions)) * 100), 2)
-        context = {'current_user': current_user,
-                    'current_user_score': current_score, 'current_user_rank': rank + 1,
-                    'user_accuracy': user_accuracy}
-        return Response(context, status=201)
+    # def get(self, request, format=None):
+    #     questions = Question.objects.all()
+    #     current_user = request.user.username
+    #     current_score = request.user.profile.total_score
+    #     leaderboard = {}
+    #     for profile in Profile.objects.order_by('-total_score'):
+    #         question_scores = [0 for i in questions]
+    #         user_submissions = Submission.objects.filter(user_id_fk=profile.user.id)
+    #         if user_submissions:
+    #             for question in questions:
+    #                 question_submission = user_submissions.filter(pk=question.id)
+    #                 if question_submission:
+    #                     question_score = question_submission.order_by('-score').first()
+    #                     question_scores[question.id - 1] += question_score.score
+    #         question_scores.append(profile.total_score)
+    #         leaderboard[profile.user.username] = question_scores
+    #     rank = int(list(leaderboard.keys()).index(current_user))
+    #     paginator = Paginator(tuple(leaderboard.items()), 10)  # Show 10 users per page.
+    #     page_number = request.GET.get('page')
+    #     page_obj = paginator.get_page(page_number)
+    #     page_range = paginator.page_range
+    #     user_accuracy = round(((request.user.profile.correct_answers / len(questions)) * 100), 2)
+    #     context = {'current_user': current_user, ''
+    #                 'current_user_score': current_score, 'current_user_rank': rank + 1,
+    #                 'user_accuracy': user_accuracy}
+    #     return Response(context, status=201)
 
+class SubmissionListView(generics.ListCreateAPIView):
+    queryset = Submission.objects.all()
+    serializer_class = SubmissionSerializer
+
+class SubmissionDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Submission.objects.all()
+    serializer_class = SubmissionSerializer
