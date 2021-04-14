@@ -3,6 +3,8 @@ from django.db.models import fields
 from rest_framework import serializers
 from .models import Question, Submission, TestCase, Profile
 from django.contrib.auth.models import User
+from Sandbox import imports
+import os
 
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -31,6 +33,19 @@ class AccountSerializer(serializers.ModelSerializer):
         profile_data = validated_data.pop('profile')
         user_instance = User.objects.create_user(**validated_data)
         Profile.objects.create(user=user_instance, **profile_data)
+        users_folder = '../SandboxData/Users/{}/{}/'
+        languages = ['java', 'py', 'c', 'cpp']
+        os.chdir(imports.cur_dir)
+        for i in range(len(languages)): 
+            os.makedirs(users_folder.format(user_instance.username, languages[i]), 0o755)
+            os.chdir(users_folder.format(user_instance.username, languages[i]))
+            dockerfile = open("Dockerfile", "w+")
+            dockerfile.write(imports.Dockerfile[i])
+            dockerfile.close()
+            entrypointfile = open("entrypointfile.sh", "w+")
+            entrypointfile.write(imports.EntryPointScript[i])
+            entrypointfile.close()
+            os.chdir(imports.cur_dir)
         return user_instance
 
 class SubmissionSerializer(serializers.ModelSerializer):

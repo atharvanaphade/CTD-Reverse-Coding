@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'Users',
     'Sandbox',
     'api',
-    'rest_framework_jwt',
 ]
 
 MIDDLEWARE = [
