@@ -15,7 +15,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 class TestCaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestCase
-        fields = ['question_id', 'input', 'output', 'time_limit', 'memory_limit']
+        fields = ('__all__')
 
 class AccountSerializer(serializers.ModelSerializer):
     class ProfileSerializer(serializers.ModelSerializer):
@@ -40,10 +40,12 @@ class AccountSerializer(serializers.ModelSerializer):
             for i in range(len(languages)): 
                 os.makedirs(users_folder.format(user_instance.username, ques.pk, languages[i]), 0o755)
                 os.chdir(users_folder.format(user_instance.username, ques.pk, languages[i]))
+                code_file = open("main.{}".format(self.lang), "w+")
+                code_file.close()
                 dockerfile = open("Dockerfile", "w+")
                 dockerfile.write(imports.Dockerfile[i])
                 dockerfile.close()
-                entrypointfile = open("entrypointfile.sh", "w+")
+                entrypointfile = open("entrypoint.sh", "w+")
                 entrypointfile.write(imports.EntryPointScript[i])
                 entrypointfile.close()
                 input_file = open("input", "w+")
