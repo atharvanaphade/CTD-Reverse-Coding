@@ -1,3 +1,4 @@
+from _typeshed import ReadableBuffer
 from django.shortcuts import render
 from .imports import *
 import os
@@ -6,20 +7,19 @@ import subprocess
 # Create your views here.
 
 class Code():
-    def __init__(self, username, ques_id, lang, testcase, status):
+    def __init__(self, username, ques_id, lang, testcase, code):
+        self.code = code
         self.lang = lang
         self.testcase = testcase
-        self.status = status
         self.username = username
         self.ques_id = ques_id
-
-    def PutCodeAndTestcases(self, code):
-        os.chdir(user_codes_dir.format(self.username, self.lang, ""))
+        os.chdir(user_codes_dir.format(self.username, self.ques_id, self.lang))
         code_file = open("main." + self.lang, "w+")
-        code_file.write(code)
+        code_file.write(self.code)
         code_file.close()
         input_file = open("input", "w+")
         input_file.write(self.testcase)
+        input_file.close()
 
 class Result():
     def __init__(self, ques_id, testcase_id, username, status, error):
@@ -29,21 +29,35 @@ class Result():
         self.status = status
         self.error = error
 
+class Checker:
+    def Check(self, output, exp_output, testcase_id, username, ques_id, attempt):
+        if(output == exp_output):
+            status = "AC"
+            error = "Compiled Successfully"
+            result = Result(ques_id, testcase_id, username, status, error)
+            return result
+        status = "WA"
+        error = "Compiled Succesfully"
+        result = Result(ques_id, testcase_id, username, status, error)
+        return result
+
 class Runner():
-    def __init__(self, username, lang, testcase_id, testcase, ques_id, code, attempt):
+    def __init__(self, username, lang, testcase_id, testcase, testcase_output, ques_id, code, attempt):
         self.username = username
         self.lang = lang
         self.testcase_id = testcase_id
         self.testcase = testcase
+        self.testcase_output = testcase_output
         self.ques_id = ques_id
         self.code = code
         self.attempt = attempt
     
     def RunCode(self):
+        code_obj = Code(self.username, self.ques_id, self.lang, self.testcase, self.code)
         os.chdir(user_codes_dir.format(self.username, self.ques_id, self.lang))
         build_image_commmand = ['sudo', 'docker', 'image', 'build', '.', '-t', '{}-{}-image-{}'.format(self.username, self.lang, self.attempt)]
         execute_container_command = ['sudo', 'docker', 'run', '--rm', '--security-opt', 'seccomp={}'.format(seccomp_profile_dir + "/seccomp.json"), '{}-{}-image-{}'.format(self.username, self.lang, self.attempt)]
-        build_stat = 0
+        build_stat = None
         try:
             build_proc = subprocess.Popen(build_image_commmand, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             print("Building Image for thr container")
@@ -62,12 +76,34 @@ class Runner():
                 [execute_proc_out, execute_proc_err] = execute_proc.communicate()
                 execute_proc_stat_code = execute_proc.wait()
                 if(execute_proc_stat_code == 0):
-                    output_file = open("output", "w+")
-                    output_file.write(execute_proc_out.decode("utf-8"))
-                    status = "Compiled Successfully"
-                    error = None
+                    output = execute_proc_out.decode("utf-8")
+                    result = Checker.Check(output, self.testcase_output, self.testcase_id, self.username, self.ques_id, self.attempt)
+                    return result
+                elif(execute_proc_stat_code == 124):
+                    status = "TLE"
+                    error = "Time Limit Exceeded"
                     result = Result(self.ques_id, self.testcase_id, self.username, status, error)
                     return result
+                elif(execute_proc_stat_code == 139):
+                    status = "MLE"
+                    error = "Memory Limit Exceeded"
+                    result = Result(self.ques_id, self.testcase_id, self.username, status, error)
+                    return result
+                elif(execute_proc_stat_code == 1):
+                    status = "RTE"
+                    error = "Runtime Error"
+                    result = Result(self.ques_id, self.testcase_id, self.username, status, error)
+                    return result
+                elif(execute_proc_stat_code == 2):
+                    status = "CTE"
+                    error = execute_proc_err.decode("utf-8")
+                    result = Result(self.ques_id, self.testcase_id, self.username, status, error)
+                    return result
+                else:
+                    status = "Unknown Error"
+                    error = execute_proc_err.decode("utf-8")
+                    result = Result(self.ques_id, self.testcase_id, self.username, status, error)
+                    return Result
             except:
                 print("Exception Occurred while running code!")
                 status = "Server Error"
@@ -77,5 +113,3 @@ class Runner():
         else:
             return("Server Error Occurred while Building image")
 
-
-        

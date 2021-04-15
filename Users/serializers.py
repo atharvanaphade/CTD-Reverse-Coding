@@ -33,24 +33,25 @@ class AccountSerializer(serializers.ModelSerializer):
         profile_data = validated_data.pop('profile')
         user_instance = User.objects.create_user(**validated_data)
         Profile.objects.create(user=user_instance, **profile_data)
-        users_folder = '../SandboxData/Users/{}/{}/'
+        users_folder = '../SandboxData/Users/{}/{}/{}/'
         languages = ['java', 'py', 'c', 'cpp']
         os.chdir(imports.cur_dir)
-        for i in range(len(languages)): 
-            os.makedirs(users_folder.format(user_instance.username, languages[i]), 0o755)
-            os.chdir(users_folder.format(user_instance.username, languages[i]))
-            dockerfile = open("Dockerfile", "w+")
-            dockerfile.write(imports.Dockerfile[i])
-            dockerfile.close()
-            entrypointfile = open("entrypointfile.sh", "w+")
-            entrypointfile.write(imports.EntryPointScript[i])
-            entrypointfile.close()
-            input_file = open("input", "w+")
-            input_file.close()
-            output_file = open("output", "w+")
-            output_file.close()
-            os.chdir(imports.cur_dir)
-        return user_instance
+        for ques in Question.objects.all():
+            for i in range(len(languages)): 
+                os.makedirs(users_folder.format(user_instance.username, ques.pk, languages[i]), 0o755)
+                os.chdir(users_folder.format(user_instance.username, ques.pk, languages[i]))
+                dockerfile = open("Dockerfile", "w+")
+                dockerfile.write(imports.Dockerfile[i])
+                dockerfile.close()
+                entrypointfile = open("entrypointfile.sh", "w+")
+                entrypointfile.write(imports.EntryPointScript[i])
+                entrypointfile.close()
+                input_file = open("input", "w+")
+                input_file.close()
+                output_file = open("output", "w+")
+                output_file.close()
+                os.chdir(imports.cur_dir)
+            return user_instance
 
 class SubmissionSerializer(serializers.ModelSerializer):
     class Meta:
