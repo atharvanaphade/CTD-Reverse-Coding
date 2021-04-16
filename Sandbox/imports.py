@@ -2,7 +2,7 @@ import os
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 user_codes_dir = cur_dir + "../SandboxData/Users/{}/{}/{}"
-seccomp_profile_dir = cur_dir + "../SandboxData/Users"
+seccomp_profile_dir = os.path.abspath(os.path.dirname(__name__)) + "/SandboxData/"
 
 Dockerfile = [
     "FROM openjdk:11.0.6-jdk-slim\n" + "WORKDIR /app\n" + "USER root\n" + "ADD . .\n" + "RUN chmod a+x ./main.java\n" + "RUN chmod a+x ./entrypoint.sh\n" + "ENTRYPOINT ./entrypoint.sh\n",

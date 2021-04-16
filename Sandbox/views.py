@@ -1,4 +1,3 @@
-from _typeshed import ReadableBuffer
 from django.shortcuts import render
 from .imports import *
 import os
@@ -77,6 +76,9 @@ class Runner():
                 execute_proc_stat_code = execute_proc.wait()
                 if(execute_proc_stat_code == 0):
                     output = execute_proc_out.decode("utf-8")
+                    out_file = open("output", "w+")
+                    out_file.write(output)
+                    out_file.close()
                     result = Checker.Check(output, self.testcase_output, self.testcase_id, self.username, self.ques_id, self.attempt)
                     return result
                 elif(execute_proc_stat_code == 124):
