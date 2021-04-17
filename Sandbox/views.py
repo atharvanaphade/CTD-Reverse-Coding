@@ -29,8 +29,8 @@ class Result():
         self.error = error
 
 class Checker:
-    def Check(self, output, exp_output, testcase_id, username, ques_id, attempt):
-        if(output == exp_output):
+    def Check(output, exp_output, testcase_id, username, ques_id, attempt):
+        if(str(output) == str(exp_output)):
             status = "AC"
             error = "Compiled Successfully"
             result = Result(ques_id, testcase_id, username, status, error)
