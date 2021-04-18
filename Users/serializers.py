@@ -40,7 +40,7 @@ class AccountSerializer(serializers.ModelSerializer):
             for i in range(len(languages)): 
                 os.makedirs(users_folder.format(user_instance.username, ques.pk, languages[i]), 0o755)
                 os.chdir(users_folder.format(user_instance.username, ques.pk, languages[i]))
-                code_file = open("main.{}".format(self.lang), "w+")
+                code_file = open("main.{}".format(languages[i]), "w+")
                 code_file.close()
                 dockerfile = open("Dockerfile", "w+")
                 dockerfile.write(imports.Dockerfile[i])
