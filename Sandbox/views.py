@@ -36,6 +36,10 @@ class Result():
 
 class Checker:
     def Check(output, exp_output, testcase_id, username, ques_id, attempt):
+        escapes = '\n\r\t\b'
+        for s in escapes:
+            output = output.replace(s, '')
+            exp_output = exp_output.replace(s, '')
         if(str(output) == str(exp_output)):
             status = "AC"
             error = "Compiled Successfully"
