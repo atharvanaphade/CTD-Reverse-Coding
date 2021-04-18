@@ -64,8 +64,8 @@ class Runner():
     def RunCode(self):
         code_obj = Code(self.username, self.ques_id, self.lang, self.testcase, self.code)
         os.chdir(user_codes_dir.format(self.username, self.ques_id, self.lang))
-        build_image_commmand = ['sudo', 'docker', 'image', 'build', '.', '-t', '{}-{}-image-{}'.format(self.username, self.lang, self.attempt)]
-        execute_container_command = ['sudo', 'docker', 'run', '--rm', '--security-opt', 'seccomp={}'.format(seccomp_profile_dir + "/seccomp.json"), '{}-{}-image-{}'.format(self.username, self.lang, self.attempt)]
+        build_image_commmand = ['sudo', 'docker', 'image', 'build', '.', '-t', '{}-{}-image'.format(self.username, self.lang)]
+        execute_container_command = ['sudo', 'docker', 'run', '--rm', '--security-opt', 'seccomp={}'.format(seccomp_profile_dir + "/seccomp.json"), '{}-{}-image'.format(self.username, self.lang)]
         build_stat = None
         try:
             build_proc = subprocess.Popen(build_image_commmand, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
