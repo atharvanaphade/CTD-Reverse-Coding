@@ -15,5 +15,5 @@ EntryPointScript = [
     "#!/usr/bin/env bash\n" + "javac main.java\n" + "ret=$?\n" + "if [ $ret -ne 0 ]\n" + "then\n" + "  exit 2\n" + "fi\n" + "ulimit -s 100\n" + "timeout --signal=SIGTERM 1 java test < input\n" + "exit $?\n",
     "#!/usr/bin/env bash\n" + "ulimit -s " + "100\n" + "timeout --signal=SIGTERM " + "2" + " python3 main.py < input\n" + "exit $?\n",
     "#!/usr/bin/env bash\n" + "gcc main.c" + " -o exec" + "\n" + "ret=$?\n" + "if [ $ret -ne 0 ]\n" + "then\n" + "  exit 2\n" + "fi\n" + "ulimit -s " + "100" + "\n" + "timeout --signal=SIGTERM " + "2" + " ./exec " + " < " + "input" + "\n" + "exit $?\n",
-    "#!/usr/bin/env bash\n" + "g++ main.cpp" + " -o exec" + "\n" + "ret=$?\n" + "if [ $ret -ne 0 ]\n" + "then\n" + "  exit 2\n" + "fi\n" + "ulimit -s " + "2" + "\n" + "timeout --signal=SIGTERM " + "2" + " ./exec " + " < " + "input" + "\n" + "exit $?\n"
+    "#!/usr/bin/env bash\n" + "g++ main.cpp" + " -o exec" + "\n" + "ret=$?\n" + "if [ $ret -ne 0 ]\n" + "then\n" + "  exit 2\n" + "fi\n" + "ulimit -s " + "100" + "\n" + "timeout --signal=SIGTERM " + "2" + " ./exec " + " < " + "input" + "\n" + "exit $?\n"
 ]
