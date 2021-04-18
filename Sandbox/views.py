@@ -89,17 +89,17 @@ class Runner():
                     return result
                 elif(execute_proc_stat_code == 124):
                     status = "TLE"
-                    error = "Time Limit Exceeded"
+                    error = execute_proc_err.decode("utf-8")
                     result = Result(self.ques_id, self.testcase_id, self.username, status, error)
                     return result
                 elif(execute_proc_stat_code == 139):
-                    status = "MLE"
-                    error = "Memory Limit Exceeded"
+                    status = "Memory Limit Exceeded"
+                    error = execute_proc_err.decode("utf-8")
                     result = Result(self.ques_id, self.testcase_id, self.username, status, error)
                     return result
                 elif(execute_proc_stat_code == 1):
                     status = "RTE"
-                    error = "Runtime Error"
+                    error = execute_proc_err.decode("utf-8")
                     result = Result(self.ques_id, self.testcase_id, self.username, status, error)
                     return result
                 elif(execute_proc_stat_code == 2):
