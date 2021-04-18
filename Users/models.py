@@ -9,7 +9,7 @@ class Profile(models.Model):
     total_score = models.FloatField(default=0)
     senior = models.BooleanField(default=False)
     correct_answers = models.IntegerField(default=0)
-    latest_submission_time = models.DateTimeField(auto_now=True)
+    latest_submission_time = models.DateTimeField()
 
     def __str__(self):
         return ("profile_" + str(self.pk) + "_" + self.user.username)
@@ -54,10 +54,10 @@ class TestCase(models.Model):
     # input set 1 will have multiple inputs
     # there will be same number of output, time and memory limit entries for 1 test case
 
-    input = models.JSONField()
-    output = models.JSONField()
+    input = models.TextField()
+    output = models.TextField()
     time_limit = models.IntegerField()
     memory_limit = models.IntegerField()
 
     def __str__(self):
-        return("test_case_" + str(self.pk) + "_question_" + self.question_id)
+        return("test_case_" + str(self.pk) + "_question_" + str(self.question_id))

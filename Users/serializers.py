@@ -13,6 +13,8 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 
 class TestCaseSerializer(serializers.ModelSerializer):
+    # input = serializers.CharField(style={'base_template': 'textarea.html'})
+    # output = serializers.CharField(style={'base_template': 'textarea.html'})
     class Meta:
         model = TestCase
         fields = ('__all__')
@@ -40,8 +42,8 @@ class AccountSerializer(serializers.ModelSerializer):
             for i in range(len(languages)): 
                 os.makedirs(users_folder.format(user_instance.username, ques.pk, languages[i]), 0o755)
                 os.chdir(users_folder.format(user_instance.username, ques.pk, languages[i]))
-                code_file = open("main.{}".format(languages[i]), "w+")
-                code_file.close()
+                # code_file = open("main.{}".format(self.lang), "w+")
+                # code_file.close()
                 dockerfile = open("Dockerfile", "w+")
                 dockerfile.write(imports.Dockerfile[i])
                 dockerfile.close()
@@ -53,7 +55,7 @@ class AccountSerializer(serializers.ModelSerializer):
                 output_file = open("output", "w+")
                 output_file.close()
                 os.chdir(imports.cur_dir)
-         return user_instance
+        return user_instance
 
 class SubmissionSerializer(serializers.ModelSerializer):
     class Meta:
