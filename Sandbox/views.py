@@ -27,6 +27,12 @@ class Result():
         self.username = username
         self.status = status
         self.error = error
+    
+    def getError(self):
+        return self.error
+
+    def getStatus(self):
+        return self.status
 
 class Checker:
     def Check(output, exp_output, testcase_id, username, ques_id, attempt):
@@ -113,5 +119,8 @@ class Runner():
                 result = Result(self.ques_id, self.testcase_id, self.username, status, error)
                 return result
         else:
-            return("Server Error Occurred while Building image")
+            status = "Server Error while Building Image"
+            error = "Server Error"
+            result = Result(self.ques_id, self.testcase_id, self.username, status, error)
+            return result
 
