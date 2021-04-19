@@ -1,7 +1,8 @@
 # Imports
+
 from django.db.models.query import QuerySet
 from .models import Profile, Question, TestCase, Submission
-from .serializers import QuestionSerializer, TestCaseSerializer, AccountSerializer, SubmissionSerializer
+from .serializers import QuestionSerializer, TestCaseSerializer, AccountSerializer, SubmissionListSerializer, SubmissionDetailSerializer, NewSubmissionSerializer
 from rest_framework.response import Response
 from rest_framework import serializers, status
 from rest_framework import mixins
@@ -15,11 +16,13 @@ from django.core.paginator import Paginator
 from django.contrib.auth.models import User
 from Sandbox import views
 from Sandbox.views import Result
-import datetime, json
+import datetime, json, subprocess
+import os
 
 # Create your views here.
 
-# Variable Declaration
+# Global variables for timer
+
 start_time = 0
 end_time = 0
 duration = 0
@@ -29,29 +32,38 @@ start = datetime.datetime(2021, 1, 1, 0, 0)
 class QuestionList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
-    
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+        if request.user.is_superuser:
+            return self.create(request, *args, **kwargs)
+        return Response({'details': 'You do not have permission to perform this action'}, status=403)
 
 class QuestionDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+        if request.user.is_superuser:
+            return self.update(request, *args, **kwargs)
+        return Response({'details': 'You do not have permission to perform this action'}, status=403)
 
     def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
+        if request.user.is_superuser:
+            return self.destroy(request, *args, **kwargs)
+        return Response({'details': 'You do not have permission to perform this action'}, status=403)
 
 class TestCaseList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
     queryset = TestCase.objects.all()
     serializer_class = TestCaseSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     def create(self, data):
         serializer = self.get_serializer(data=data)
@@ -66,29 +78,10 @@ class TestCaseList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.Gene
     def post(self, request):
         return self.create(request.data)
 
-    # def post(self, request, *args, **kwargs):
-    #     data = request.data.copy()
-    #     input_json = {}
-    #     output_json = {}
-    #     input = data['input']
-    #     output = data['output']
-    #     counter = 1
-    #     for inp in input.split(' '):
-    #         if inp.isdigit():
-    #             input_json['{}'.format(counter)] = inp
-    #         counter = counter + 1
-    #     counter = 1
-    #     for out in output.split(' '):
-    #         if out.isdigit():
-    #             output_json['{}'.format(counter)] = out
-    #         counter = counter + 1
-    #     data['input'] = input_json
-    #     data['output'] = output_json
-    #     return self.create(data, *args, **kwargs)
-
 class TestCaseDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
     queryset = TestCase.objects.all()
     serializer_class = TestCaseSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
@@ -102,12 +95,16 @@ class TestCaseDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
 class AccountList(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = AccountSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
 class AccountDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = AccountSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
 class Timer(APIView):
+    permission_classes = [IsAuthenticated]
+
     @staticmethod
     def remaining_time():
         time = datetime.datetime.now()
@@ -118,26 +115,28 @@ class Timer(APIView):
         else:
             return 0
 
-    def get(self):
-        if self.remaining_time() != 0:
+    def get(self, request):
+        if Timer.remaining_time() != 0:
             val = {'status' : 'Remaining time is {}'.format(self.remaining_time())}
             return Response(val, status=201)
-        val = {'status' : 'Timer is not set'}
+        val = {'status' : 'Time is up!'}
         return Response(val, status=201)
     
     @action(methods=['post'], detail=True, permission_classes=[IsAdminUser])
     def post(self, request):
-        global start_time, start
-        global end_time
-        global duration
-        duration = int(request.data['duration'])
-        start = datetime.datetime.now()
-        start = start + datetime.timedelta(0, 15)
-        time = start.second + start.minute * 60 + start.hour * 60 * 60
-        start_time = time
-        end_time = time + int(duration)
-        val = {'status' : 'Time is set! start : {}, remaining_time : {}'.format(start_time, self.remaining_time())}
-        return Response(val, status=201)
+        if request.user.is_superuser:
+            global start_time, start
+            global end_time
+            global duration
+            duration = int(request.data['duration'])
+            start = datetime.datetime.now()
+            start = start + datetime.timedelta(0, 15)
+            time = start.second + start.minute * 60 + start.hour * 60 * 60
+            start_time = time
+            end_time = time + int(duration)
+            val = {'status' : 'Time is set! start : {}, remaining_time : {}'.format(start_time, self.remaining_time())}
+            return Response(val, status=201)
+        return Response({'details': 'You do not have permission to perform this action'}, status=403)
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 2
@@ -145,66 +144,103 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 3
 
 class LeaderBoardListView(APIView):
-    # queryset = User.objects.order_by('-profile__total_score')
-    # serializer_class = AccountSerializer
-    # pagination_class = StandardResultsSetPagination
+
+    permission_classes = [IsAuthenticated]
 
     @staticmethod
-    def get(request):
-        questions = Question.objects.all()
-        current_user = request.user.username
-        current_score = request.user.profile.total_score
+    def get_junior_leaderboard(questions, score):
+
         leaderboard = {}
-        for profile in Profile.objects.order_by('-total_score', 'latest_submission_time'):
+        for profile in Profile.objects.filter(senior=False).order_by('-total_score', 'latest_submission_time'):
             question_scores = [0 for _ in questions]
             user_submissions = Submission.objects.filter(user_id_fk=profile.user.id)
             if user_submissions:
                 for question in questions:
-                    question_submission = user_submissions.filter(pk=question.id)
+                    question_submission = user_submissions.filter(question_id_fk=question.id)
                     if question_submission:
                         question_score = question_submission.order_by('-score').first()
                         question_scores[question.id - 1] += question_score.score
-            question_scores.append(profile.total_score)
+            question_scores.append(score)
             leaderboard[profile.user.username] = question_scores
-        rank = int(list(leaderboard.keys()).index(current_user))
+        return leaderboard
+
+    @staticmethod
+    def get_senior_leaderboard(questions, score):
+        leaderboard = {}
+        for profile in Profile.objects.filter(senior=True).order_by('-total_score', 'latest_submission_time'):
+            question_scores = [0 for _ in questions]
+            user_submissions = Submission.objects.filter(user_id_fk=profile.user.id)
+            if user_submissions:
+                for question in questions:
+                    question_submission = user_submissions.filter(question_id_fk=question.id)
+                    if question_submission:
+                        question_score = question_submission.order_by('-score').first()
+                        question_scores[question.id - 1] += question_score.score
+            question_scores.append(score)
+            leaderboard[profile.user.username] = question_scores
+        return leaderboard
+
+    @staticmethod
+    def get(request):
+        username = request.user.username
+        questions = Question.objects.all()
+        score = request.user.profile.total_score
+        if not request.user.profile.senior:
+            leaderboard = LeaderBoardListView.get_junior_leaderboard(questions, score)
+        else:
+            leaderboard = LeaderBoardListView.get_senior_leaderboard(questions, score)
+        rank = int(list(leaderboard.keys()).index(username))
         paginator = Paginator(tuple(leaderboard.items()), 10)  # Show 10 users per page.
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         page_range = paginator.page_range
-        user_accuracy = round(((request.user.profile.correct_answers / len(questions)) * 100), 2)
-        context = {'current_user': current_user, 'page_obj': page_obj, 'page_range': list(page_range),
-                    'current_user_score': current_score, 'current_user_rank': rank + 1,
-                    'user_accuracy': user_accuracy}
+        accuracy = round(((request.user.profile.correct_answers / len(questions)) * 100), 2)
+        context = {'username': username, 'rank': rank + 1, 'score': score, 'accuracy': accuracy,
+                   'page_range': list(page_range), 'page_obj': page_obj,
+        }
         return Response(context, status=201)
 
-class SubmissionListView(generics.ListCreateAPIView):
-    queryset = Submission.objects.all()
-    serializer_class = SubmissionSerializer
+class SubmissionListView(generics.ListAPIView):
+    serializer_class = SubmissionListSerializer
+    permission_classes = [IsAuthenticated]
 
-    # def post(self, request, *args, **kwargs):
-    #     data = request.data
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return Submission.objects.all()
+        return Submission.objects.filter(user_id_fk=self.request.user.pk)
 
-    #     pass
+class SubmissionDetailView(generics.RetrieveAPIView):
+    serializer_class = SubmissionDetailSerializer
+    permission_classes = [IsAuthenticated]
 
-class SubmissionDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Submission.objects.all()
-    serializer_class = SubmissionSerializer
+    def get_queryset(self):
+        print(self.kwargs)
+        submission_id = self.kwargs['pk']
+        print(self.request.user.is_superuser)
+        if self.request.user.is_superuser:
+            return Submission.objects.filter(pk=submission_id)
+        try:
+            queryset = Submission.objects.filter(pk=submission_id, user_id_fk=self.request.user.pk)
+        except Submission.DoesNotExist:
+            raise exceptions.NotFound(detail="You are not allowed to access this submission")
+        return queryset
 
-   
+
 class Submit(generics.GenericAPIView, mixins.CreateModelMixin):
 
-    serializer_class = SubmissionSerializer
+    serializer_class = NewSubmissionSerializer
+    permission_classes = [IsAuthenticated]
 
     @staticmethod
     def post(request, **kwargs):
         # if Timer.remaining_time() != 0:
         user_id_fk = request.user.pk
-        profile = Profile.objects.get(user=request.user)
+        profile = Profile.objects.filter(user=request.user)
         question_id_fk = kwargs['pk']
-        question = Question.objects.get(id=question_id_fk)
+        print(question_id_fk)
+        question = Question.objects.filter(id=question_id_fk)
+        print(question)
         language = request.data['language'] # get editor language
-        # data = json.loads(request.data)
-        # print(data)
         code = request.data['code'] # get user code
         attempt = 1  # attempt = 1 by default
         previous_max_marks = 0
@@ -280,7 +316,7 @@ class Submit(generics.GenericAPIView, mixins.CreateModelMixin):
                 score = 0
             else:
                 # logic for junior marking scheme
-                score = accuracy
+                score = question.max_marks * (accuracy / 100)
         data = {
             'user_id_fk': user_id_fk,
             'question_id_fk': question_id_fk,
@@ -297,10 +333,40 @@ class Submit(generics.GenericAPIView, mixins.CreateModelMixin):
             if score > previous_max_marks:
                 profile.total_score -= previous_max_marks
                 profile.total_score += score
-                profile.latest_submission_time = datetime.datetime.now()
+                # profile.latest_submission_time = datetime.datetime.now()
 
             question.save()
             profile.save()
             return Response(result_list, status=201)
         else:
             return Response(serializer.errors, status=400)
+
+class LoadBuffer(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    @staticmethod
+    def get(request, **kwargs):
+        question_id = kwargs['pk']
+        language = kwargs['ext']
+        user = request.user
+
+        buffer = Submission.objects.filter(user_id_fk=user.pk, question_id_fk=question_id, language=language).order_by(
+            '-submission_time').first()
+        if buffer:
+            return Response({'code': buffer.code}, status=201)
+        return Response({'details': 'Code not found'}, status=404)
+
+class GetOutput(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @staticmethod
+    def post(request):
+        data = {}  # empty dictionary
+        question_id = request.data['pk']
+        input = str(request.data['input'])
+        result = subprocess.Popen("SandboxData/Executables/Question-{}/a.out".format(question_id),
+                               stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        (output, error) = result.communicate(input=input.encode())
+        data["output"] = output.decode()
+        return Response(data, status=201)

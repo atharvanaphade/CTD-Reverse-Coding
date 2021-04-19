@@ -5,14 +5,13 @@ from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, User
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    # college = models.CharField(max_length=255)
     total_score = models.FloatField(default=0)
     senior = models.BooleanField(default=False)
     correct_answers = models.IntegerField(default=0)
-    latest_submission_time = models.DateTimeField()
+    latest_submission_time = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return ("profile_" + str(self.pk) + "_" + self.user.username)
+        return "profile_" + str(self.pk) + "_" + self.user.username
 
 
 class Question(models.Model):
@@ -23,12 +22,12 @@ class Question(models.Model):
     max_marks = models.FloatField(default=0)
 
     def __str__(self):
-        return ("question_" + str(self.pk) + "_" + self.question_title)
+        return "question_" + str(self.pk) + "_" + self.question_title
 
 
 class Submission(models.Model):
 
-    languages = [("cpp", "C++"), ("c", "C"), ("py", "Python")]
+    languages = [("cpp", "C++"), ("c", "C"), ("py", "Python"), ("java", "Java")]
 
     user_id_fk = models.ForeignKey(User, on_delete=models.CASCADE)
     question_id_fk = models.ForeignKey(Question, on_delete=models.CASCADE)
@@ -41,23 +40,15 @@ class Submission(models.Model):
     language = models.CharField(max_length=6, choices=languages)
 
     def __str__(self):
-        return("submission_" + str(self.pk) + "_" + self.user_id_fk.username + "_question_" + str(self.question_id_fk))
+        return "submission_" + str(self.pk) + "_" + self.user_id_fk.username + "_question_" + str(self.question_id_fk)
 
 
 class TestCase(models.Model):
     question_id = models.ForeignKey(Question, on_delete=models.CASCADE)
-
-    # django supports json field for all databases
-    # it is stored as a string in the database but returned as a dictionary in a query
-
-    # input, output, time and memory limits are considered as sets stored in json format
-    # input set 1 will have multiple inputs
-    # there will be same number of output, time and memory limit entries for 1 test case
-
     input = models.TextField()
     output = models.TextField()
     time_limit = models.IntegerField()
     memory_limit = models.IntegerField()
 
     def __str__(self):
-        return("test_case_" + str(self.pk) + "_question_" + str(self.question_id))
+        return "test_case_" + str(self.pk) + "_question_" + str(self.question_id)

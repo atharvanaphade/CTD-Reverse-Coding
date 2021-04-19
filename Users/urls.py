@@ -15,6 +15,8 @@ urlpatterns = [
     path('leaderboard/', views.LeaderBoardListView.as_view()),
     path('submissions/', views.SubmissionListView.as_view()),
     path('submissions/<int:pk>', views.SubmissionDetailView.as_view()),
+    path('get_output/', views.GetOutput.as_view()),
+    path('load_buffer/<int:pk>_<str:ext>', views.LoadBuffer.as_view()),
     path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path('api-auth/', include('rest_framework.urls')),

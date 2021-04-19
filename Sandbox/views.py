@@ -13,7 +13,7 @@ class Code():
         self.username = username
         self.ques_id = ques_id
         os.chdir(user_codes_dir.format(self.username, self.ques_id, self.lang))
-        code_file = open("main." + self.lang, "w+")
+        code_file = open("main.{}".format(self.lang), "w+")
         code_file.write(self.code)
         code_file.close()
         input_file = open("input", "w+")

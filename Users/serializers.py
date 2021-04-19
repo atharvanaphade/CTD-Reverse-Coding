@@ -9,32 +9,37 @@ import os
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
-        fields = ['question_title', 'question_desc', 'correct_attempts', 'total_attempts', 'max_marks']
+        exclude = ['correct_attempts', 'total_attempts']
 
 
 class TestCaseSerializer(serializers.ModelSerializer):
-    # input = serializers.CharField(style={'base_template': 'textarea.html'})
-    # output = serializers.CharField(style={'base_template': 'textarea.html'})
     class Meta:
         model = TestCase
-        fields = ('__all__')
+        fields = '__all__'
 
 class AccountSerializer(serializers.ModelSerializer):
+
     class ProfileSerializer(serializers.ModelSerializer):
+        senior = serializers.NullBooleanField()
         class Meta:
             model = Profile
-            exclude = ['user']
+            fields = ['senior']
     
-    profile = ProfileSerializer()
+    profile = ProfileSerializer(required=False)
 
     class Meta:
         model = User
-        exclude = ['last_login', 'is_superuser', 'is_staff', 'date_joined', 'is_active', 'groups', 'user_permissions']
+        fields = ['username', 'password', 'profile']
     
-    def create(self, validated_data):
-        profile_data = validated_data.pop('profile')
+    @staticmethod
+    def create(validated_data):
+        print(type(validated_data))
         user_instance = User.objects.create_user(**validated_data)
-        Profile.objects.create(user=user_instance, **profile_data)
+        if 'profile' in validated_data.keys():
+            profile_data = validated_data.pop('profile')
+            Profile.objects.create(user=user_instance, **profile_data)
+        else:
+            Profile.objects.create(user=user_instance)
         users_folder = '../SandboxData/Users/{}/{}/{}/'
         languages = ['java', 'py', 'c', 'cpp']
         os.chdir(imports.cur_dir)
@@ -57,7 +62,17 @@ class AccountSerializer(serializers.ModelSerializer):
                 os.chdir(imports.cur_dir)
         return user_instance
 
-class SubmissionSerializer(serializers.ModelSerializer):
+class SubmissionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
-        fields = ('__all__')
+        fields = ['pk', 'submission_time', 'accuracy']
+
+class SubmissionDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Submission
+        fields = ['language', 'code']
+
+class NewSubmissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Submission
+        fields = '__all__'
