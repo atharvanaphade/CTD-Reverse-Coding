@@ -21,6 +21,7 @@ urlpatterns = [
     path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path('api-auth/', include('rest_framework.urls')),
     path('submit/<int:pk>/', views.Submit.as_view()),
+    path('is_auth/', views.test_auth),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

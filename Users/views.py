@@ -1,5 +1,6 @@
 # Imports
 
+from django.http import HttpResponse
 from django.db.models.query import QuerySet
 from .models import Profile, Question, TestCase, Submission
 from .serializers import QuestionSerializer, TestCaseSerializer, AccountSerializer, SubmissionListSerializer, SubmissionDetailSerializer, NewSubmissionSerializer
@@ -18,6 +19,7 @@ from Sandbox import views
 from Sandbox.views import Result
 import datetime, json, subprocess
 import os
+from drf_yasg.utils import swagger_auto_schema
 
 # Create your views here.
 
@@ -122,6 +124,7 @@ class Timer(APIView):
         val = {'status' : 'Time is up!'}
         return Response(val, status=201)
     
+    @swagger_auto_schema
     @action(methods=['post'], detail=True, permission_classes=[IsAdminUser])
     def post(self, request):
         if request.user.is_superuser:
@@ -370,3 +373,12 @@ class GetOutput(APIView):
         (output, error) = result.communicate(input=input.encode())
         data["output"] = output.decode()
         return Response(data, status=201)
+
+def test_auth(request):
+    if request.method == "GET":
+        if request.user.is_authenticated:
+            data = {"logged_in" : "true"}
+            return HttpResponse(data, "application/json")
+        else:
+            data = {"logged_in" : "false"}
+            return HttpResponse(data, "application/json")
