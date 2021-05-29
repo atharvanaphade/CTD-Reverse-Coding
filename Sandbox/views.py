@@ -64,13 +64,14 @@ class Runner():
     def RunCode(self):
         code_obj = Code(self.username, self.ques_id, self.lang, self.testcase, self.code)
         os.chdir(user_codes_dir.format(self.username, self.ques_id, self.lang))
-        build_image_commmand = ['sudo', 'docker', 'image', 'build', '.', '-t', '{}-{}-image'.format(self.username, self.lang)]
-        execute_container_command = ['sudo', 'docker', 'run', '--rm', '--security-opt', 'seccomp={}'.format(seccomp_profile_dir + "/seccomp.json"), '{}-{}-image'.format(self.username, self.lang)]
+        build_image_commmand = ['sudo', 'docker', 'image', 'build', '.', '-t', '{}-{}-image'.format(self.username.lower(), self.lang)]
+        execute_container_command = ['sudo', 'docker', 'run', '--rm', '--security-opt', 'seccomp={}'.format(seccomp_profile_dir + "/seccomp.json"), '{}-{}-image'.format(self.username.lower(), self.lang)]
         build_stat = None
         try:
             build_proc = subprocess.Popen(build_image_commmand, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             print("Building Image for thr container")
             [build_proc_out, build_proc_err] = build_proc.communicate()
+            print(build_proc_err)
             build_stat = build_proc.wait()
         except:
             print("Could not build image, exception occurred")
@@ -131,6 +132,6 @@ class Runner():
             status = "Server Error while Building Image"
             error = "Server Error"
             result = Result(self.ques_id, self.testcase_id, self.username, status, error)
-            print(result.status)
+            print(result.error)
             return result
 

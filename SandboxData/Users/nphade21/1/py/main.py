@@ -1,1 +1,2 @@
-asfdadvcsd
+i=int(input())
+print(i)
