@@ -90,6 +90,7 @@ class Runner():
                     out_file.write(output)
                     out_file.close()
                     result = Checker.Check(output, self.testcase_output, self.testcase_id, self.username, self.ques_id, self.attempt)
+                    print(result.status)
                     return result
                 elif(execute_proc_stat_code == 124):
                     status = "TLE"
@@ -105,26 +106,31 @@ class Runner():
                     status = "RTE"
                     error = execute_proc_err.decode("utf-8")
                     result = Result(self.ques_id, self.testcase_id, self.username, status, error)
+                    print(result.status)
                     return result
                 elif(execute_proc_stat_code == 2):
                     status = "CTE"
                     error = execute_proc_err.decode("utf-8")
                     result = Result(self.ques_id, self.testcase_id, self.username, status, error)
+                    print(result.status)
                     return result
                 else:
                     status = "Unknown Error"
                     error = execute_proc_err.decode("utf-8")
                     result = Result(self.ques_id, self.testcase_id, self.username, status, error)
-                    return Result
+                    print(result.status)
+                    return result
             except:
                 print("Exception Occurred while running code!")
                 status = "Server Error"
                 error = "Server Error while running code"
                 result = Result(self.ques_id, self.testcase_id, self.username, status, error)
+                print(result.status)
                 return result
         else:
             status = "Server Error while Building Image"
             error = "Server Error"
             result = Result(self.ques_id, self.testcase_id, self.username, status, error)
+            print(result.status)
             return result
 

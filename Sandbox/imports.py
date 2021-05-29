@@ -1,7 +1,7 @@
 import os
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
-user_codes_dir = cur_dir + "../SandboxData/Users/{}/{}/{}"
+user_codes_dir = cur_dir + "/../SandboxData/Users/{}/{}/{}"
 seccomp_profile_dir = os.path.abspath(os.path.dirname(__name__)) + "/SandboxData/"
 
 Dockerfile = [

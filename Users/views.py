@@ -238,10 +238,10 @@ class Submit(generics.GenericAPIView, mixins.CreateModelMixin):
     def post(request, **kwargs):
         # if Timer.remaining_time() != 0:
         user_id_fk = request.user.pk
-        profile = Profile.objects.filter(user=request.user)
+        profile = Profile.objects.filter(user=request.user).first()
         question_id_fk = kwargs['pk']
         print(question_id_fk)
-        question = Question.objects.filter(id=question_id_fk)
+        question = Question.objects.filter(id=question_id_fk).first()
         print(question)
         language = request.data['language'] # get editor language
         code = request.data['code'] # get user code
@@ -330,7 +330,7 @@ class Submit(generics.GenericAPIView, mixins.CreateModelMixin):
             'code': code,
             'language': language
         }
-        serializer = SubmissionSerializer(data=data)
+        serializer = NewSubmissionSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             if score > previous_max_marks:

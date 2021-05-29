@@ -9,7 +9,7 @@ import os
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
-        exclude = ['correct_attempts', 'total_attempts']
+        fields = ('__all__')
 
 
 class TestCaseSerializer(serializers.ModelSerializer):
@@ -65,7 +65,7 @@ class AccountSerializer(serializers.ModelSerializer):
 class SubmissionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
-        fields = ['pk', 'submission_time', 'accuracy']
+        fields = ['pk', 'submission_time', 'accuracy', 'question_id_fk', 'user_id_fk']
 
 class SubmissionDetailSerializer(serializers.ModelSerializer):
     class Meta:
