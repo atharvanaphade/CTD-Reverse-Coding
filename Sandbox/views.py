@@ -39,14 +39,20 @@ class Checker:
         escapes = '\n\r\t\b'
         for s in escapes:
             output = output.replace(s, '')
+            output = output.replace(' ', '')
             exp_output = exp_output.replace(s, '')
-        if(str(output) == str(exp_output)):
-            status = "AC"
+            exp_output = exp_output.replace(' ', '')
+        if(output != exp_output):
+            status = "WA"
             error = "Compiled Successfully"
+            print(repr(output))
+            print(repr(exp_output))
             result = Result(ques_id, testcase_id, username, status, error)
             return result
-        status = "WA"
+        status = "AC"
         error = "Compiled Succesfully"
+        print(repr(output))
+        print(repr(exp_output))
         result = Result(ques_id, testcase_id, username, status, error)
         return result
 

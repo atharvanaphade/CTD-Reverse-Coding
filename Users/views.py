@@ -154,7 +154,10 @@ class LeaderBoardListView(APIView):
     def get_junior_leaderboard(questions, score):
 
         leaderboard = {}
+        rank = 1
+        leaderboard['data'] = []
         for profile in Profile.objects.filter(senior=False).order_by('-total_score', 'latest_submission_time'):
+            temp = {}
             question_scores = [0 for _ in questions]
             user_submissions = Submission.objects.filter(user_id_fk=profile.user.id)
             if user_submissions:
@@ -163,14 +166,21 @@ class LeaderBoardListView(APIView):
                     if question_submission:
                         question_score = question_submission.order_by('-score').first()
                         question_scores[question.id - 1] += question_score.score
-            question_scores.append(score)
-            leaderboard[profile.user.username] = question_scores
+            temp['username'] = profile.user.username
+            temp['score_list'] = question_scores
+            temp['total_score'] = profile.total_score
+            temp['rank'] = rank
+            rank += 1
+            leaderboard['data'].append(temp)
         return leaderboard
 
     @staticmethod
     def get_senior_leaderboard(questions, score):
         leaderboard = {}
+        rank = 1
+        leaderboard['data'] = []
         for profile in Profile.objects.filter(senior=True).order_by('-total_score', 'latest_submission_time'):
+            temp = {}
             question_scores = [0 for _ in questions]
             user_submissions = Submission.objects.filter(user_id_fk=profile.user.id)
             if user_submissions:
@@ -179,8 +189,12 @@ class LeaderBoardListView(APIView):
                     if question_submission:
                         question_score = question_submission.order_by('-score').first()
                         question_scores[question.id - 1] += question_score.score
-            question_scores.append(score)
-            leaderboard[profile.user.username] = question_scores
+            temp['username'] = profile.user.username
+            temp['score_list'] = question_scores
+            temp['total_score'] = profile.total_score
+            temp['rank'] = rank
+            rank += 1
+            leaderboard['data'].append(temp)
         return leaderboard
 
     @staticmethod
@@ -192,13 +206,16 @@ class LeaderBoardListView(APIView):
             leaderboard = LeaderBoardListView.get_junior_leaderboard(questions, score)
         else:
             leaderboard = LeaderBoardListView.get_senior_leaderboard(questions, score)
-        rank = int(list(leaderboard.keys()).index(username))
+        rank = 1
+        for t in leaderboard['data']:
+            if(t['username'] == username):
+                rank = t['rank']
         paginator = Paginator(tuple(leaderboard.items()), 10)  # Show 10 users per page.
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         page_range = paginator.page_range
         accuracy = round(((request.user.profile.correct_answers / len(questions)) * 100), 2)
-        context = {'username': username, 'rank': rank + 1, 'score': score, 'accuracy': accuracy,
+        context = {'username': username, 'rank': rank, 'score': score, 'accuracy': accuracy,
                    'page_range': list(page_range), 'page_obj': page_obj,
         }
         return Response(context, status=201)
@@ -291,7 +308,7 @@ class Submit(generics.GenericAPIView, mixins.CreateModelMixin):
                 print(result_list['passed_test_cases'][index])
                 result_list['passed_test_cases'][index] = True
             else:
-                result_list['error'][index] = result.error
+                result_list['error'][index] = result.error + result.status
             index += 1
 
         print(result_list)

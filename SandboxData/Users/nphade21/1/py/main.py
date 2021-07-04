@@ -1,2 +1,2 @@
-i=int(input())
-print(i)
+while(True):
+    print("sdfgsdfsdf")
