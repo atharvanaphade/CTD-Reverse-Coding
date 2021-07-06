@@ -210,9 +210,10 @@ class LeaderBoardListView(APIView):
         for t in leaderboard['data']:
             if(t['username'] == username):
                 rank = t['rank']
-        paginator = Paginator(tuple(leaderboard.items()), 10)  # Show 10 users per page.
+        paginator = Paginator(tuple(leaderboard['data']), 10)
         page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
+        page_obj = {}
+        page_obj['data'] = list(paginator.get_page(page_number))
         page_range = paginator.page_range
         accuracy = round(((request.user.profile.correct_answers / len(questions)) * 100), 2)
         context = {'username': username, 'rank': rank, 'score': score, 'accuracy': accuracy,
